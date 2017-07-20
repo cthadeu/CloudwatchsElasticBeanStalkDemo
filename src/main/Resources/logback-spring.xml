@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  ​
+  <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+
+  <!--- Logs moins verbeuse pour la console de developpement -->
+  <property name="CONSOLE_DEV_LOG_PATTERN"
+            value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL:-%5p}) %clr([%X{serviceName}]){yellow} %clr(${PID:- }){magenta} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+  <!-- [date, time, loginfo, applicationName, spanId, traceId, spanExported, serviceName, pid, thread, class, skip, log] -->
+  <property name="CONSOLE_LOG_PATTERN"
+            value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL:-%5p}) %clr([${springAppName:-}][%X{X-Span-Export:-}][%X{serviceName}]){yellow} %clr(${PID:- }){magenta} %clr([%15.15t]){faint} %clr(%-100.100logger{99}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+  <!-- Appender to log to console -->
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <!-- Minimum logging level to be presented in the console logs-->
+      <level>INFO</level>
+    </filter>
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+      <charset>utf8</charset>
+    </encoder>
+  </appender>
+
+  <appender name="console_dev" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+    <encoder>
+      <pattern>${CONSOLE_DEV_LOG_PATTERN}</pattern>
+      <charset>utf8</charset>
+    </encoder>
+  </appender>
+
+  ​​
+  <!-- Configuration si le profil spring DEV est activé  -->
+  <springProfile name="dev">
+  <logger name="org.vialle" level="debug"
+          additivity="false">
+    <appender-ref ref="console_dev"/>
+  </logger>
+
+  <root level="INFO">
+    <appender-ref ref="console_dev"/>
+  </root>
+
+  <!-- Configuration appliquée si le profil Dev n'est PAS activée -->
+  <springProfile name="!dev">
+    <logger name="org.vialle" level="info"
+            additivity="false">
+      <appender-ref ref="console"/>
+    </logger>
+
+    <root level="INFO">
+      <appender-ref ref="console"/>
+    </root>
+  </springProfile>
+
+</configuration>
